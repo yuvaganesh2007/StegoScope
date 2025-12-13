@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 
-from PIL import Image
-import numpy as np
-import argparse
+with open("/home/yuvaganesh/Pictures/123.xyz", "rb") as file:
+    data= file.read(16)
 
-parser=argparse.ArgumentParser()
-parser.add_argument("image", help="path to image")
-args=parser.parse_args()
-
-img=Image.open(args.image)
-pixel_arr=np.asarray(img)
-print(pixel_arr.shape)
-
-for i in range(0,3):
-    print(pixel_arr[0,i])
+    if data.startswith(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'):
+        print("PNG Image")
+    if data.startswith(b'\xFF\xD8\xFF'):
+        print("JPEG Image")
+    if data.startswith(b'GIF87a') or data.startswith(b'GIF89a'):
+        print("GIF Image")
+    if data.startswith(b'BM'):
+        print("BMP Image")

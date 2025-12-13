@@ -14,10 +14,10 @@ img=Image.open(args.file)
 pixel_array=np.asarray(img)
 new_pixel_array=pixel_array.copy()
 shape=pixel_array.shape
+
 if(args.extract):
     print("Extraction of hidden data is selected(custom method)")
     print("Processing...")
-   # shape=pixel_array.shape
     i=0
     j=0
     data=""
@@ -40,12 +40,34 @@ if(args.extract):
         data=data+char
         if (pixarr[0]%2==1):
             break
-    print(f"The extracted hidden data is: {data}")
+    print("Choices for outputting data:\n1. Output to stdout\n2. Output to a file")
+    output_type=int(input("Enter the type of output for data: "))
+    if output_type==1:
+        print(f"The extracted hidden data is:\n {data}")
+    elif output_type==2:
+        output_path=input("Enter the path of the output data file:")
+        with open(output_path, "w") as file:
+            file.write(data)
+        print("Hidden data is successfully written into the given output file")
+    else:
+        print("Invalid choice is selected")
+        print("Aborting...")
+        sys.exit(1)
 
 elif(args.embed):
     print("Embedding data into image is selected(custom method)...")
-    data=input("Enter the data to embed into the image file: ")
-    #shape=pixel_array.shape
+    print("Choices for inputting data:\n1. Input from keyboard(type the data)\n2. Input from a file")
+    input_type=int(input("Enter the type of input of data: "))
+    if input_type==1:
+        data=input("Enter the data to embed into the image file: ")
+    elif input_type==2:
+        input_path=input("Enter the path of the input data file:")
+        with open(input_path, "r") as file:
+            data=file.read()
+    else:
+        print("Invalid choice is selected")
+        print("Aborting...")
+        sys.exit(1)
     i=0
     j=0
     for char in data:
