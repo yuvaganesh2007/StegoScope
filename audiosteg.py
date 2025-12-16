@@ -14,7 +14,7 @@ group.add_argument("-q", "--quiet", action="store_true")
 
 args=parser.parse_args()
 
-audio=wave.open(args.path)
+audio=wave.open(args.file)
 frames=audio.readframes(-1)
 sample_width=audio.getsampwidth()
 audio.close()
