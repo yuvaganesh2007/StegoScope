@@ -9,6 +9,10 @@ parser.add_argument("path", help="Path of the file to work on")
 parser.add_argument("choice", choices=["extract","embed"], help="Choice to work on file")
 parser.add_argument("-c", "--custom", action="store_true", help="Select custom embedding method only for images")
 
+group=parser.add_mutually_exclusive_group()
+group.add_argument("-v", "--verbose", action="store_true")
+group.add_argument("-q", "--quiet", action="store_true")
+
 args=parser.parse_args()
 
 image_true=False
@@ -34,9 +38,24 @@ with open(args.path, "rb") as file:
 
 if image_true:
     if args.custom:
-        os.system(f"python3 imagestegcustom.py {args.path} --{args.choice}")
+        if args.verbose:
+            os.system(f"python3 imagestegcustom.py {args.path} --{args.choice} -v")
+        elif args.quiet:
+            os.system(f"python3 imagestegcustom.py {args.path} --{args.choice} -q")
+        else:
+            print("Enter the type of output argument(--quiet or --verbose)")
+            print("Aborting")
+            sys.exit(1)
+
     else:
-        os.system(f"python3 imagesteg.py {args.path} --{args.choice}")
+        if args.verbose:
+            os.system(f"python3 imagesteg.py {args.path} --{args.choice} -v")
+        elif args.quiet:
+            os.system(f"python3 imagesteg.py {args.path} --{args.choice} -q")
+        else:
+            print("Enter the type of output argument(--quiet or --verbose)")
+            print("Aborting")
+            sys.exit(1)
 elif audio_true:
     os.system("python3 audiosteg.py --{args.choice}")
 elif video_true: 

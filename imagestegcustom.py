@@ -1,12 +1,17 @@
 import numpy as np
 from PIL import Image
-import argparse as ap
+import argparse
 import sys
 
-parser=ap.ArgumentParser()
+parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
 parser.add_argument("--extract","-e", action="store_true", help="choose to extract")
 parser.add_argument("--embed", "-E", action="store_true", help="to embed data into the file")
+
+group=parser.add_mutually_exclusive_group()
+group.add_argument("-v", "--verbose", action="store_true")
+group.add_argument("-q", "--quiet", action="store_true")
+
 args=parser.parse_args()
 
 path=str(args.file)
@@ -16,8 +21,9 @@ new_pixel_array=pixel_array.copy()
 shape=pixel_array.shape
 
 if(args.extract):
-    print("Extraction of hidden data is selected(custom method)")
-    print("Processing...")
+    if args.verbose:
+        print("Extraction of hidden data is selected(custom method)")
+        print("Processing...")
     i=0
     j=0
     data=""
@@ -51,11 +57,13 @@ if(args.extract):
         print("Hidden data is successfully written into the given output file")
     else:
         print("Invalid choice is selected")
-        print("Aborting...")
+        if args.verbose:
+            print("Aborting...")
         sys.exit(1)
 
 elif(args.embed):
-    print("Embedding data into image is selected(custom method)...")
+    if args.verbose:
+        print("Embedding data into image is selected(custom method)...")
     print("Choices for inputting data:\n1. Input from keyboard(type the data)\n2. Input from a file")
     input_type=int(input("Enter the type of input of data: "))
     if input_type==1:
@@ -66,7 +74,8 @@ elif(args.embed):
             data=file.read()
     else:
         print("Invalid choice is selected")
-        print("Aborting...")
+        if args.verbose:
+            print("Aborting...")
         sys.exit(1)
     i=0
     j=0
@@ -76,7 +85,6 @@ elif(args.embed):
             i=0
         trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
         pixarr=np.append(trash_arr, pixel_array[j,i+2], axis=0)
-        #i+=3
         ascii_val=ord(char)
         binary=format(ascii_val,' 08b')
         bin_str="0"+str(binary)[1:]
@@ -104,17 +112,23 @@ elif(args.embed):
         else:
             new_pixel_array[j,i-3,0]-=1
     output_image=Image.fromarray(new_pixel_array)
-    print("Data embedded successfully into the image")
+    if args.verbose:
+        print("Data embedded successfully into the image")
     print("Choices:\n 1. Show output image\n 2. Save output image\n")
     choice=int(input("Enter your choice: "))
     if choice==1:
-        print("processing...")
+        if args.verbose:
+            print("Processing...")
         output_image.show()
     elif choice==2:
         new_name=input("Enter the name of the new image file(.png): ")
-        print("Saving...")
+        if args.verbose:
+            print("Saving...")
         new_path=f"/home/yuvaganesh/Pictures/embedded_images/"+new_name
         output_image.save(new_path)
     else:
         print("Invalid choice")
+        if args.verbose:
+            print("Aborting")
+        sys.exit(1)
 
