@@ -15,6 +15,7 @@ group.add_argument("-q", "--quiet", action="store_true")
 args=parser.parse_args()
 
 audio=wave.open(args.file)
+params=audio.getparams()
 frames=audio.readframes(-1)
 sample_width=audio.getsampwidth()
 audio.close()
@@ -31,5 +32,68 @@ else:
         print("Aborting...")
     sys.exit(1)
 
-print(type(samples))
-print(samples[0])
+EOF_marker="11111110"
+
+if(args.extract):
+    if args.verbose:
+        print("Extraction of hidden data is selected")
+        print("Processing...")
+    bin_str=''
+    k=0
+    while True:
+        if samples[k]%2==0:
+            bin_str+='0'
+        else:
+            bin_str+='1'
+        k+=1
+        if bin_str.endswith(EOF_marker):
+            break
+
+    bin_fin=bin_str[:-(len(EOF_marker))]
+    print(bin_fin)
+elif(args.embed):
+    if args.verbose:
+        print("Embedding data into audio file is selected...")
+    print("Choices for inputting data:\n1. Input from keyboard(type the data)\n2. Input from a file")
+    input_type=int(input("Enter the type of input of data: "))
+    if input_type==1:
+        data=input("Enter the data to embed into the audio file: ")
+    elif input_type==2:
+        input_path=input("Enter the path of the input data file:")
+        with open(input_path, "r") as file:
+            data=file.read()
+    else:
+        print("Invalid choice is selected")
+        if args.verbose:
+            print("Aborting...")
+        sys.exit(1)
+    bin_list=[]
+    for char in data:
+        ascii_val=ord(char)
+        binary=format(ascii_val,' 08b')
+        bin_list.append("0"+str(binary)[1:])
+    bin_str=''.join(bin_list)
+    bin_str+=EOF_marker
+    
+    if len(bin_str)>len(samples):
+        print("Audio file is too small to store this data")
+        if args.verbose:
+            print("Aborting...")
+        sys.exit(1)
+    new_samples=np.copy(samples)
+    k=0
+    for char in bin_str:
+        if char=='1':
+            if new_samples[k]%2==0:
+                new_samples[k]+=1
+        else:
+            if new_samples[k]%2==1:
+                new_samples[k]-=1
+        k+=1
+    new_frames=new_samples.tobytes()
+    output_file_name=input("Enter the name of the output audio file(.wav): ")
+    output_path="/home/yuvaganesh/Music/embedded_audio/"+output_file_name
+    with wave.open(output_path,"wb") as out:
+        out.setparams(params)
+        out.writeframes(new_frames)
+
