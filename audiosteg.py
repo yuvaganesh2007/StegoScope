@@ -50,7 +50,31 @@ if(args.extract):
             break
 
     bin_fin=bin_str[:-(len(EOF_marker))]
-    print(bin_fin)
+    i=0
+    bin_list=[]
+    while i<len(bin_fin):
+        bin_list.append(bin_fin[i:8+i])
+        i+=8
+    char_list=[]
+    for string in bin_list:
+        int_str=int(string, 2)
+        char_list.append(chr(int_str))
+    data=''.join(char_list)
+    print("Choices for outputting data:\n1. Output to stdout\n2. Output to a file")
+    output_type=int(input("Enter the type of output for data: "))
+    if output_type==1:
+        print(f"The extracted hidden data is:\n {data}")
+    elif output_type==2:
+        output_path=input("Enter the path of the output data file:")
+        with open(output_path, "w") as file:
+            file.write(data)
+        print("Hidden data is successfully written into the output file")
+    else:
+        print("Invalid choice is selected")
+        if args.verbose:
+            print("Aborting...")
+        sys.exit(1)
+
 elif(args.embed):
     if args.verbose:
         print("Embedding data into audio file is selected...")
