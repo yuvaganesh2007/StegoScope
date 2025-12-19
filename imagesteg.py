@@ -91,14 +91,11 @@ elif(args.embed):
         k=0
         for digit in bin_str:
             if digit=='0':
-                if not (pixarr[k]%2==0):
+                if pixarr[k]%2==1:
                     pixarr[k]-=1
             else:
-                if (pixarr[k]%2==0):
-                    if pixarr[k]==0:
-                        pixarr[k]+=1
-                    else:
-                        pixarr[k]-=1
+                if pixarr[k]%2==0:
+                    pixarr[k]+=1
             k+=1
             if(pixarr[-1]%2==1):
                 pixarr[-1]-=1
@@ -107,10 +104,8 @@ elif(args.embed):
         new_pixel_array[j,i+2]=pixarr[6:9]
         i+=3
     if new_pixel_array[j,i-1,-1]%2==0:
-        if new_pixel_array[j,i-1,-1]==0:
-            new_pixel_array[j,i-1,-1]+=1
-        else:
-            new_pixel_array[j,i-1,-1]-=1
+        new_pixel_array[j,i-1,-1]+=1
+
     output_image=Image.fromarray(new_pixel_array)
     if args.verbose:
         print("Data embedded successfully into the image")
