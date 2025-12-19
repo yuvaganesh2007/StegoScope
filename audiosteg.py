@@ -117,7 +117,10 @@ elif(args.embed):
     new_frames=new_samples.tobytes()
     output_file_name=input("Enter the name of the output audio file(.wav): ")
     output_path="/home/yuvaganesh/Music/embedded_audio/"+output_file_name
+    if args.verbose:
+        print("Saving...")
     with wave.open(output_path,"wb") as out:
         out.setparams(params)
         out.writeframes(new_frames)
-
+    if args.verbose:
+        print("New audio file has been successfully saved")
