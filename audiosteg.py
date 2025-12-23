@@ -115,6 +115,7 @@ elif(args.embed):
                 new_samples[k]-=1
         k+=1
     new_frames=new_samples.tobytes()
+    print("Successfully embedded data")
     output_file_name=input("Enter the name of the output audio file(.wav): ")
     output_path="/home/yuvaganesh/Music/embedded_audio/"+output_file_name
     if args.verbose:
