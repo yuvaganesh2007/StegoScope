@@ -8,6 +8,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
 parser.add_argument("--extract","-e", action="store_true", help="choose to extract hidden data")
 parser.add_argument("--embed", "-E", action="store_true", help="to embed data into the file")
+parser.add_argument("--analyze", "-a", action="store_true", help="to analyze the file")
 group=parser.add_mutually_exclusive_group()
 group.add_argument("-v", "--verbose", action="store_true")
 group.add_argument("-q", "--quiet", action="store_true")
@@ -125,3 +126,6 @@ elif(args.embed):
         out.writeframes(new_frames)
     if args.verbose:
         print("New audio file has been successfully saved")
+
+elif(args.analyze):
+    print("Analysis selected")

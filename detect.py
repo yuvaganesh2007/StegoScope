@@ -6,7 +6,7 @@ import argparse as ap
 
 parser=ap.ArgumentParser()
 parser.add_argument("path", help="Path of the file to work on")
-parser.add_argument("choice", choices=["extract","embed"], help="Choice to work on file")
+parser.add_argument("choice", choices=["extract","embed","analyze"], help="Choice to work on file")
 parser.add_argument("-c", "--custom", action="store_true", help="Select custom embedding method only for images")
 
 group=parser.add_mutually_exclusive_group()
@@ -66,7 +66,14 @@ elif audio_true:
         print("Aborting")
         sys.exit(1)
 elif video_true: 
-    os.system("python3 videosteg.py --{args.choice}")
+    if args.verbose:
+        os.system(f"python3 videosteg.py {args.path} --{args.choice} -v")
+    elif args.quiet:
+        os.system(f"python3 videosteg.py {args.path} --{args.choice} -q")
+    else:
+        print("Enter the type of output argument(--quiet or --verbose)")
+        print("Aborting")
+        sys.exit(1)
 else:
     print("Invalid file type given as input")
     sys.exit(1)

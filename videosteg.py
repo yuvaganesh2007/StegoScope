@@ -7,6 +7,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
 parser.add_argument("--extract","-e", action="store_true", help="choose to extract")
 parser.add_argument("--embed", "-E", action="store_true", help="to embed data into the file")
+parser.add_argument("--analyze", "-a", action="store_true", help="to analyze the file")
 group=parser.add_mutually_exclusive_group()
 group.add_argument("-v", "--verbose", action="store_true")
 group.add_argument("-q", "--quiet", action="store_true")
@@ -42,7 +43,7 @@ def imgExtract(image):
         if (pixarr[-1]%2==1):
             break
         
-        return data
+    return data
 
 def imgEmbed(image, data):
     path=str(image)
@@ -126,3 +127,6 @@ elif(args.embed):
         
     if args.verbose:
         print("Data embedded successfully into the video")
+
+elif(args.analyze):
+    print("Analysis selected")
