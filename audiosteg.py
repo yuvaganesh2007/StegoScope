@@ -2,7 +2,21 @@ import wave
 import numpy as np
 import argparse
 import sys 
+import os
+import subprocess
 
+def convert_to_wav(input_file, output_wav):
+
+    cmd = [
+            "ffmpeg",
+            "-y",
+            "-i", input_file ,
+            "-acodec", "pcm_s16le",
+            "-ar", "44100",
+            output_wav
+        ]
+    subprocess.run(cmd,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+    
 parser=argparse.ArgumentParser()
 
 parser.add_argument("file", help="image file to handle")
@@ -14,12 +28,14 @@ group.add_argument("-v", "--verbose", action="store_true")
 group.add_argument("-q", "--quiet", action="store_true")
 
 args=parser.parse_args()
-
-audio=wave.open(args.file)
+audiofile="/home/yuvaganesh/Music/sample123.wav"
+convert_to_wav(args.file, audiofile) 
+audio=wave.open(audiofile)
 params=audio.getparams()
 frames=audio.readframes(-1)
 sample_width=audio.getsampwidth()
 audio.close()
+os.system(f"rm {audiofile}")
 
 if sample_width==1:
     samples=np.frombuffer(frames, dtype=np.uint8)
