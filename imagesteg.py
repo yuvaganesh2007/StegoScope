@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 import argparse
 import sys
+from steganalysis.imageanalysis import LSBHistogram, ChiSquare
 
 parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
@@ -28,11 +29,11 @@ if(args.extract):
     j=0
     data=""
     while True:
-        trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
-        pixarr=np.append(trash_arr, pixel_array[j,i+2], axis=0)
-        if i>=shape[1]:
+        if i>=shape[1]-2:
             j+=1
             i=0
+        trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
+        pixarr=np.append(trash_arr, pixel_array[j,i+2], axis=0)
         i+=3
         bin_arr=['0','0','0','0','0','0','0','0']
         for k in range(0,8):
@@ -77,11 +78,16 @@ elif(args.embed):
         if args.verbose:
             print("Aborting...")
         sys.exit(1)
-    shape=pixel_array.shape
+
+    if((len(data)*8)>(shape[0]*shape[1]*shape[2])):
+        print("The data is too long to embed into the image given")
+        if args.verbose:
+            print("Aborting...")
+        sys.exit(1)
     i=0
     j=0
     for char in data:
-        if i>=shape[1]:
+        if i>=shape[1]-2:
             j+=1
             i=0
         trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
@@ -129,5 +135,7 @@ elif(args.embed):
         sys.exit(1)
 elif(args.analyze):
     print("analysis selected")
+    LSBHistogram(args.file)
+    ChiSquare(args.file)
 
         
