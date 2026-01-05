@@ -4,6 +4,7 @@ import argparse
 import sys
 import subprocess
 import os
+import re
 
 parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
@@ -26,11 +27,11 @@ def imgExtract(image):
     j=0
     data=""
     while True:
-        trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
-        pixarr=np.append(trash_arr, pixel_array[j,i+2], axis=0)
-        if i>=shape[1]:
+        if i>=shape[1]-2:
             j+=1
             i=0
+        trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
+        pixarr=np.append(trash_arr, pixel_array[j,i+2], axis=0)
         i+=3
         bin_arr=['0','0','0','0','0','0','0','0']
         for k in range(0,8):
@@ -49,14 +50,14 @@ def imgExtract(image):
 
 def imgEmbed(image, data):
     path=str(image)
-    img=Image.open(args.file).convert("RGB")
+    img=Image.open(image).convert("RGB")
     pixel_array=np.asarray(img)
     new_pixel_array=pixel_array.copy()
     shape=pixel_array.shape
     i=0
     j=0
     for char in data:
-        if i>=shape[1]:
+        if i>=shape[1]-2:
             j+=1
             i=0
         trash_arr=np.append(pixel_array[j,i],pixel_array[j,i+1], axis=0)
@@ -99,20 +100,35 @@ def extract_frames(video_path, out_dir):
 
 extract_frames(args.file, "/home/yuvaganesh/StegoScope/tmpdir")
 
-os.system("ffmpeg -i /home/yuvaganesh/Videos/bulb_purple.mp4 -vf showinfo -f null - 2>&1 | grep "type:I" | awk '{print $5}' >> num.txt")
+os.system(f"ffmpeg -i {args.file} -vf showinfo -f null - 2>&1 | grep ':I' >> new.txt")
+os.system("awk '{print $5}' new.txt >>num.txt")
 
-with open ("num.txt","r") as f:
-    for line in f:
+kf_numbers=[]
+with open ("/home/yuvaganesh/StegoScope/num.txt","r") as file:
+    for line in file:
         l=line.strip()
         n=int(l)
         n+=1
-        print(n)
+        kf_numbers.append(n)
+trashlist=[f"{n:06d}.png" for n in kf_numbers]
+formatted_num=tuple(trashlist)
+kf_files=[]
+p="/home/yuvaganesh/StegoScope/tmpdir"
+for roots,dirs,files in os.walk(p):
+    for filename in files:
+        if filename.endswith(formatted_num):
+            kf_files.append(filename)
+sorted_files = sorted(kf_files, key=lambda x: int(re.findall(r'\d+', x)[-1]))
+count_kf=len(sorted_files)
 
 if(args.extract):
     if args.verbose:
         print("Extraction of hidden data is selected")
         print("Processing...")
-    
+    data=''
+    for i in range(0,count_kf):
+        path=os.path.join(p,sorted_files[i])
+        data+=imgExtract(path)
 
     print("Choices for outputting data:\n1. Output to stdout\n2. Output to a file")
     output_type=int(input("Enter the type of output for data: "))
@@ -146,13 +162,40 @@ elif(args.embed):
         if args.verbose:
             print("Aborting...")
         sys.exit(1)
-
-        
+    chunk_no=len(data)//(count_kf-1)
+    last_chunk=0
+    if((len(data))%(count_kf-1)!=0):
+        last_chunk=(len(data))%(count_kf-1)
+    data_chunks=[]
+    for i in range(0,count_kf-1):
+        data_chunks.append(data[i*chunk_no:(i+1)*chunk_no])
+    data_chunks.append(data[-last_chunk:])
+    
+    for i in range(0,count_kf):
+        path=os.path.join(p,sorted_files[i])
+        new_image=imgEmbed(path,data_chunks[i])
+        new_image.save(path)
     if args.verbose:
         print("Data embedded successfully into the video")
+    output_file=str(input("Enter the name of the output file(.mp4)"))
+    output_path="/home/yuvaganesh/Videos/embedded_videos/"+output_file
+    cmd = [
+    "ffmpeg",
+    "-y",
+    "-framerate", "30",
+    "-i", f"{p}/frame_%06d.png",
+    "-start_number", "1",
+    "-c:v", "libx264",
+    "-crf", "0",
+    "-pix_fmt", "yuv444p",
+    output_path
+    ]
+
+    subprocess.run(cmd)
 
 elif(args.analyze):
     print("Analysis selected")
 
-#os.system("rm -r /home/yuvaganesh/StegoScope/tmpdir")
-#os.system("rm /home/yuvaganesh/StegoScope/num.txt")
+os.system("rm -r /home/yuvaganesh/StegoScope/tmpdir")
+os.system("rm /home/yuvaganesh/StegoScope/num.txt")
+os.system("rm /home/yuvaganesh/StegoScope/new.txt")

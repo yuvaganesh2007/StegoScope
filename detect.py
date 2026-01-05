@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse as ap
+import subprocess
 
 parser=ap.ArgumentParser()
 parser.add_argument("path", help="Path of the file to work on")
@@ -33,7 +34,7 @@ with open(args.path, "rb") as file:
         image_true=True
     elif magic_numbers.startswith(audio_prefixes) or (magic_numbers.startswith(b'RIFF') and (b'WAVE' in magic_numbers)):
         audio_true=True
-    elif magic_numbers.startswith(video_prefixes):
+    elif magic_numbers.startswith(video_prefixes) or (magic_numbers[4:8]==b'\x66\x74\x79\x70'):
         video_true=True
 
 if image_true:
