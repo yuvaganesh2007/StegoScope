@@ -2,6 +2,8 @@ import numpy as np
 from PIL import Image
 import argparse
 import sys
+import subprocess
+import os
 
 parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
@@ -84,12 +86,33 @@ def imgEmbed(image, data):
     
     return output_image
 
+def extract_frames(video_path, out_dir):
+    os.makedirs(out_dir, exist_ok=True)
+
+    cmd = [
+        "ffmpeg",
+        "-i", video_path,
+        os.path.join(out_dir, "frame_%06d.png")
+    ]
+
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+extract_frames(args.file, "/home/yuvaganesh/StegoScope/tmpdir")
+
+os.system("ffmpeg -i /home/yuvaganesh/Videos/bulb_purple.mp4 -vf showinfo -f null - 2>&1 | grep "type:I" | awk '{print $5}' >> num.txt")
+
+with open ("num.txt","r") as f:
+    for line in f:
+        l=line.strip()
+        n=int(l)
+        n+=1
+        print(n)
 
 if(args.extract):
     if args.verbose:
         print("Extraction of hidden data is selected")
         print("Processing...")
-
+    
 
     print("Choices for outputting data:\n1. Output to stdout\n2. Output to a file")
     output_type=int(input("Enter the type of output for data: "))
@@ -130,3 +153,6 @@ elif(args.embed):
 
 elif(args.analyze):
     print("Analysis selected")
+
+#os.system("rm -r /home/yuvaganesh/StegoScope/tmpdir")
+#os.system("rm /home/yuvaganesh/StegoScope/num.txt")
