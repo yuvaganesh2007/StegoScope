@@ -1,8 +1,9 @@
 import numpy as np
 from PIL import Image
 import argparse
-from steganalysis.imageanalysis import LSBHistogram, ChiSquare
 import sys
+from steganalysis.core.loader import load_plugins
+import steganalysis.plugins.image
 
 parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
@@ -136,7 +137,10 @@ elif(args.embed):
         sys.exit(1)
 
 elif(args.analyze):
-    print("analysis selected")
-    LSBHistogram(args.file)
-    ChiSquare(args.file)
+    print("Analysis selected")
+    plugins=[]
+    plugins=load_plugins(steganalysis.plugins.image)
+    for plugin in plugins:
+        result=plugin.analyze(args.file)
+        print(plugin.name, "->", result)
 

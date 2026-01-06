@@ -4,6 +4,10 @@ import os
 import sys
 import argparse as ap
 import subprocess
+from steganalysis.core.loader import load_plugins
+import steganalysis.plugins.image
+import steganalysis.plugins.audio
+import steganalysis.plugins.video
 
 parser=ap.ArgumentParser()
 parser.add_argument("path", help="Path of the file to work on")

@@ -5,6 +5,8 @@ import sys
 import subprocess
 import os
 import re
+from steganalysis.core.loader import load_plugins
+import steganalysis.plugins.video
 
 parser=argparse.ArgumentParser()
 parser.add_argument("file", help="image file to handle")
@@ -195,6 +197,11 @@ elif(args.embed):
 
 elif(args.analyze):
     print("Analysis selected")
+    plugins=[]
+    plugins=load_plugins(steganalysis.plugins.video)
+    for plugin in plugins:
+        result=plugin.analyze(args.file)
+        print(plugin.name, "->", result)
 
 os.system("rm -r /home/yuvaganesh/StegoScope/tmpdir")
 os.system("rm /home/yuvaganesh/StegoScope/num.txt")

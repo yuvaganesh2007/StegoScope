@@ -4,6 +4,8 @@ import argparse
 import sys 
 import os
 import subprocess
+from steganalysis.core.loader import load_plugins
+import steganalysis.plugins.audio
 
 def convert_to_wav(input_file, output_wav):
 
@@ -35,7 +37,7 @@ params=audio.getparams()
 frames=audio.readframes(-1)
 sample_width=audio.getsampwidth()
 audio.close()
-os.system(f"rm {audiofile}")
+#os.system(f"rm {audiofile}")
 
 if sample_width==1:
     samples=np.frombuffer(frames, dtype=np.uint8)
@@ -145,3 +147,10 @@ elif(args.embed):
 
 elif(args.analyze):
     print("Analysis selected")
+    plugins=[]
+    plugins=load_plugins(steganalysis.plugins.audio)
+    for plugin in plugins:
+        result=plugin.analyze(audiofile)
+        print(plugin.name, "->", result)
+
+os.system(f"rm {audiofile}")

@@ -1,13 +1,18 @@
-#!/usr/bin/env python3
+import subprocess
+import os
 
-with open("/home/yuvaganesh/Pictures/123.xyz", "rb") as file:
-    data= file.read(16)
+def extract_keyframes(video_path, out_dir):
+    os.makedirs(out_dir, exist_ok=True)
 
-    if data.startswith(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'):
-        print("PNG Image")
-    if data.startswith(b'\xFF\xD8\xFF'):
-        print("JPEG Image")
-    if data.startswith(b'GIF87a') or data.startswith(b'GIF89a'):
-        print("GIF Image")
-    if data.startswith(b'BM'):
-        print("BMP Image")
+    cmd = [
+        "ffmpeg",
+        "-framerate", "30",
+        "-i","/home/yuvaganesh/StegoScope/tmpikfdir" ,
+       "-map", " 0:v:0", "-map", "1:a?",
+       "-c:v", "libx264", "-pix_fmt yuv420p",
+       stego_video.mp4
+    ]
+
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+extract_keyframes()
